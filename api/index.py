@@ -97,27 +97,45 @@ def home():
     """Status page — shows if API is running."""
     return jsonify({
         "status": "running",
-        "message": "🔥 Rishu Access Token Capture API — by Rishu 💀",
+        "developer": "Anupam Mishra",
+        "project": "🔥 Free Fire Access Token Capture API",
+        "version": "2.0",
+        "message": "API is live and ready to capture tokens!",
+        "credits": "Developed & Maintained by Anupam Mishra 💀",
         "endpoints": {
-            "/token": "GET — dekho captured token",
-            "/config": "GET — localconfig.json content (Vercel URL wala)",
-            "/<any-path>": "Proxy — game traffic forward + token sniff",
+            "/token": "GET — View captured token with full details",
+            "/config": "GET — Get localconfig.json content (Vercel URL)",
+            "/<any-path>": "Proxy — Game traffic forward + token sniff",
         }
     })
 
 
 @app.route('/token', methods=['GET'])
 def get_token():
-    """Return the latest captured token."""
+    """Return the latest captured token with line-by-line details."""
     data = tokens.get('latest')
     if data:
+        token = data['access_token']
+        ts = data['timestamp']
         return jsonify({
-            "access_token": data['access_token'],
-            "timestamp": data['timestamp'],
-            "captured_at": time.ctime(data['timestamp']),
-            "status": "captured"
+            "line_1_status": "✅ Token Captured Successfully",
+            "line_2_developer": "Developer: Anupam Mishra",
+            "line_3_access_token": token,
+            "line_4_token_length": f"{len(token)} characters",
+            "line_5_timestamp": ts,
+            "line_6_captured_at": time.ctime(ts),
+            "line_7_token_type": "Free Fire Access Token (Hex-64)",
+            "line_8_token_preview": f"{token[:8]}...{token[-8:]}",
+            "line_9_server": DEFAULT_HOST,
+            "line_10_credits": "Powered by Anupam Mishra 💀"
         })
-    return jsonify({"error": "No token captured yet", "status": "waiting"}), 404
+    return jsonify({
+        "line_1_status": "⏳ Waiting for token...",
+        "line_2_developer": "Developer: Anupam Mishra",
+        "line_3_message": "No token captured yet. Open your game first!",
+        "line_4_help": "Put localconfig.json → open game → come back here",
+        "line_5_credits": "Powered by Anupam Mishra 💀"
+    }), 404
 
 
 @app.route('/config', methods=['GET'])
