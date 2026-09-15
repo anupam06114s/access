@@ -118,24 +118,18 @@ def get_token():
         token = data['access_token']
         ts = data['timestamp']
         return jsonify({
-            "line_1_status": "✅ Token Captured Successfully",
-            "line_2_developer": "Developer: Anupam Mishra",
-            "line_3_access_token": token,
-            "line_4_token_length": f"{len(token)} characters",
-            "line_5_timestamp": ts,
-            "line_6_captured_at": time.ctime(ts),
-            "line_7_token_type": "Free Fire Access Token (Hex-64)",
-            "line_8_token_preview": f"{token[:8]}...{token[-8:]}",
-            "line_9_server": DEFAULT_HOST,
-            "line_10_credits": "Powered by Anupam Mishra 💀"
+            "🎯 Status": "Token Captured Successfully",
+            "👤 Developer": "Anupam Mishra",
+            "🔑 Access Token": token,
+            "📏 Token Length": f"{len(token)} characters",
+            "🕐 Timestamp": ts,
+            "📅 Captured At": time.ctime(ts),
+            "📦 Token Type": "Free Fire Access Token (Hex-64)",
+            "👁️ Token Preview": f"{token[:8]}...{token[-8:]}",
+            "🌐 Game Server": DEFAULT_HOST,
+            "💀 Credits": "Powered by Anupam Mishra"
         })
-    return jsonify({
-        "line_1_status": "⏳ Waiting for token...",
-        "line_2_developer": "Developer: Anupam Mishra",
-        "line_3_message": "No token captured yet. Open your game first!",
-        "line_4_help": "Put localconfig.json → open game → come back here",
-        "line_5_credits": "Powered by Anupam Mishra 💀"
-    }), 404
+    return jsonify({"error": "No token captured yet", "status": "waiting"}), 404
 
 
 @app.route('/config', methods=['GET'])
