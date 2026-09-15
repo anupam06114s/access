@@ -94,40 +94,21 @@ def forward_to_game_server(method, path, body, headers):
 
 @app.route('/')
 def home():
-    """Status page — shows if API is running."""
+    """Status page."""
     return jsonify({
-        "status": "running",
-        "developer": "Anupam Mishra",
-        "project": "🔥 Free Fire Access Token Capture API",
-        "version": "2.0",
-        "message": "API is live and ready to capture tokens!",
-        "credits": "Developed & Maintained by Anupam Mishra 💀",
-        "endpoints": {
-            "/token": "GET — View captured token with full details",
-            "/config": "GET — Get localconfig.json content (Vercel URL)",
-            "/<any-path>": "Proxy — Game traffic forward + token sniff",
-        }
+        "developer": "Anupam Mishra"
     })
 
 
 @app.route('/token', methods=['GET'])
 def get_token():
-    """Return the latest captured token with line-by-line details."""
+    """Return the latest captured token."""
     data = tokens.get('latest')
     if data:
-        token = data['access_token']
-        ts = data['timestamp']
         return jsonify({
-            "🎯 Status": "Token Captured Successfully",
-            "👤 Developer": "Anupam Mishra",
-            "🔑 Access Token": token,
-            "📏 Token Length": f"{len(token)} characters",
-            "🕐 Timestamp": ts,
-            "📅 Captured At": time.ctime(ts),
-            "📦 Token Type": "Free Fire Access Token (Hex-64)",
-            "👁️ Token Preview": f"{token[:8]}...{token[-8:]}",
-            "🌐 Game Server": DEFAULT_HOST,
-            "💀 Credits": "Powered by Anupam Mishra"
+            "access_token": data['access_token'],
+            "time": time.ctime(data['timestamp']),
+            "developer": "Anupam Mishra"
         })
     return jsonify({"error": "No token captured yet", "status": "waiting"}), 404
 
